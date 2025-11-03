@@ -1,4 +1,4 @@
-﻿## RFBCodeWorks.RFBCodeWorks.DriveUtilities
+﻿## RFBCodeWorks.DriveUtilities
 
 This library was created out of a need to format and eject USB drives from a WPF Application. This uses the CSWin32 source generator to generate the required windows APIs.
 
