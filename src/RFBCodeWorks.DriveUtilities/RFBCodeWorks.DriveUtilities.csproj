@@ -1,0 +1,85 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>
+            net462;
+            net5.0;
+            net6.0;
+            net8.0;
+        </TargetFrameworks>
+        <Platforms>x86;x64;</Platforms>
+        <Version>1.0.0.5</Version>
+        <AssemblyName>RFBCodeWorks.DriveUtilities</AssemblyName>
+        <RootNamespace>RFBCodeWorks.DriveUtilities</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <UseWPF>false</UseWPF>
+        <UseWinforms>false</UseWinforms>
+
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <OutputPath>.\bin\$(Configuration)\$(TargetFramework)\$(Platform)\</OutputPath>
+        <IntermediateOutputPath>.\obj\$(Configuration)\$(TargetFramework)\$(Platform)\</IntermediateOutputPath>
+
+        <!-- Nuget Packing  -->
+        <PackageId>RFBCodeWorks.DriveUtilities</PackageId>
+        <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
+        <PackageTags>USB;Eject;USB Ejection;USB Format;</PackageTags>
+        <PackageOutputPath>..\..\Packages\</PackageOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="bin\**" />
+        <EmbeddedResource Remove="bin\**" />
+        <None Remove="bin\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="UsbDrive - Original.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Remove="NativeMethods.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <AdditionalFiles Include="NativeMethods.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.235">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="System.Memory" Version="4.6.3" />
+    </ItemGroup>
+
+    <Choose>
+        <When Condition="'$(TargetFramework)' == 'net5.0' or '$(TargetFramework)' == 'net5.0-windows'">
+            <ItemGroup>
+                <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
+
+    <!-- Nuget Packing -->
+    <ItemGroup>
+        <Content Pack="true" Visible="true" Include="..\..\readme.md" PackagePath="\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x86\RFBCodeWorks.UsbEject.dll" PackagePath="lib\net462\x86\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x64\RFBCodeWorks.UsbEject.dll" PackagePath="lib\net462\x64\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x86\$(AssemblyName).dll" PackagePath="lib\net5.0-windows7.0\x86\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x64\$(AssemblyName).dll" PackagePath="lib\net5.0-windows7.0\x64\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x86\$(AssemblyName).dll" PackagePath="lib\net6.0-windows7.0\x86\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x64\$(AssemblyName).dll" PackagePath="lib\net6.0-windows7.0\x64\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x86\$(AssemblyName).dll" PackagePath="lib\net8.0-windows7.0\x86\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x64\$(AssemblyName).dll" PackagePath="lib\net8.0-windows7.0\x64\" />
+    </ItemGroup>
+</Project>

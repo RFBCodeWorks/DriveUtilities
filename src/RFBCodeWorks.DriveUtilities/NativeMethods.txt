@@ -1,0 +1,65 @@
+﻿// Notify windows via shell
+SHChangeNotify
+
+// ---------------------------------------
+// DEVICE IO CONTROL
+// ---------------------------------------
+CreateFile
+CreateFileW
+CloseHandle
+DeviceIoControl
+
+FSCTL_LOCK_VOLUME
+FSCTL_UNLOCK_VOLUME
+FSCTL_DISMOUNT_VOLUME
+
+IOCTL_STORAGE_EJECT_MEDIA
+IOCTL_STORAGE_MEDIA_REMOVAL
+IOCTL_STORAGE_GET_DEVICE_NUMBER
+
+// ---------------------------------------
+// METHODS FOR USB-EJECTION
+// ---------------------------------------
+CreateFile
+CreateFileW
+CloseHandle
+DeviceIoControl
+
+CM_Get_Parent
+CM_Request_Device_EjectW
+CM_Query_And_Remove_SubTree
+CM_MapCrToWin32Err 
+CM_REMOVE_NO_RESTART 
+
+GetDriveType
+GetDriveTypeW
+DRIVE_REMOVABLE 
+
+QueryDosDevice
+
+SetupDiGetClassDevs
+SetupDiEnumDeviceInterfaces
+SetupDiGetDeviceInterfaceDetail
+SetupDiGetDeviceInterfaceDetailW
+SetupDiDestroyDeviceInfoList
+
+// ---------------------------------------
+// STRUCTS, ENUMS &  CONSTANTS
+// ---------------------------------------
+GENERIC_ACCESS_RIGHTS
+FILE_SHARE_MODE
+WIN32_ERROR
+MAX_PATH
+PREVENT_MEDIA_REMOVAL 
+STORAGE_DEVICE_NUMBER
+PNP_VETO_TYPE
+
+SP_DEVINFO_DATA
+SP_DEVICE_INTERFACE_DATA
+//SP_DEVICE_INTERFACE_DETAIL_DATA
+
+GUID_DEVINTERFACE_VOLUME
+GUID_DEVINTERFACE_DISK
+GUID_DEVINTERFACE_FLOPPY
+GUID_DEVINTERFACE_CDROM
+

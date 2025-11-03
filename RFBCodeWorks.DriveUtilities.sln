@@ -1,0 +1,41 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36518.9
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RFBCodeWorks.DriveUtilities", "src\RFBCodeWorks.DriveUtilities\RFBCodeWorks.DriveUtilities.csproj", "{0CF6C744-B213-4F80-9C83-75CB02B5F00A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RFBCodeWorks.DriveUtilities.WPF", "src\RFBCodeWorks.DriveUtilities.WPF\RFBCodeWorks.DriveUtilities.WPF.csproj", "{013438F2-1722-4DA8-9A30-7BFE20794F3E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Debug|x64.ActiveCfg = Debug|x64
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Debug|x64.Build.0 = Debug|x64
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Debug|x86.ActiveCfg = Debug|x86
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Debug|x86.Build.0 = Debug|x86
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Release|x64.ActiveCfg = Release|x64
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Release|x64.Build.0 = Release|x64
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Release|x86.ActiveCfg = Release|x86
+		{0CF6C744-B213-4F80-9C83-75CB02B5F00A}.Release|x86.Build.0 = Release|x86
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Debug|x64.ActiveCfg = Debug|x64
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Debug|x64.Build.0 = Debug|x64
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Debug|x86.Build.0 = Debug|Any CPU
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Release|x64.ActiveCfg = Release|x64
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Release|x64.Build.0 = Release|x64
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Release|x86.ActiveCfg = Release|Any CPU
+		{013438F2-1722-4DA8-9A30-7BFE20794F3E}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8AE60E27-2EFC-4542-B2E9-5380C759372B}
+	EndGlobalSection
+EndGlobal
