@@ -7,7 +7,7 @@
             net6.0-windows;
             net8.0-windows;
         </TargetFrameworks>
-        <Platforms>x86;x64;</Platforms>
+        <Platforms>x86;x64</Platforms>
         <Version>1.0.0.6</Version>
         <AssemblyName>RFBCodeWorks.DriveUtilities</AssemblyName>
         <RootNamespace>RFBCodeWorks.DriveUtilities</RootNamespace>
