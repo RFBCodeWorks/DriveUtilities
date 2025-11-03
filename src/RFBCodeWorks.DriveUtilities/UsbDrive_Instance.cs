@@ -11,9 +11,6 @@ using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using Windows.Win32;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CA1416 // available on non-windows platforms
-
 namespace RFBCodeWorks.DriveUtilities
 {
     /// <summary>
@@ -23,7 +20,6 @@ namespace RFBCodeWorks.DriveUtilities
     /// </summary>
     public partial class UsbDrive : IDisposable
     {
-        [SupportedOSPlatform("windows")]
         public UsbDrive(DriveInfo driveInfo)
         {
             DriveInfo = driveInfo ?? throw new ArgumentNullException(nameof(driveInfo));
@@ -31,7 +27,6 @@ namespace RFBCodeWorks.DriveUtilities
             ThrowIfInvalidDriveChar(driveInfo.Name[0]); // validates drive letter
         }
 
-        [SupportedOSPlatform("windows")]
         public UsbDrive(char driveLetter)
         {
             ThrowIfInvalidDriveChar(driveLetter);
@@ -39,7 +34,6 @@ namespace RFBCodeWorks.DriveUtilities
             Root = DriveInfo.Name;
         }
 
-        [SupportedOSPlatform("windows")]
         public UsbDrive(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -181,9 +175,10 @@ namespace RFBCodeWorks.DriveUtilities
         /// If successful, closes the underlying handle.
         /// </remarks>
         /// <returns></returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public bool Dismount()
         {
+            ThrowIfUnsupportedPlatform();
             ThrowIfDisposed(disposedValue);
             if (!IsMounted) return true;
 
@@ -227,9 +222,10 @@ namespace RFBCodeWorks.DriveUtilities
         }
 
         /// <inheritdoc cref="Eject(char)"/>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows6.1")]
         public bool Eject()
         {
+            ThrowIfUnsupportedPlatform();
             ThrowIfDisposed(disposedValue);
             bool wasDisposed = false;
             if (Dismount())
@@ -255,23 +251,24 @@ namespace RFBCodeWorks.DriveUtilities
         }
 
         /// <inheritdoc cref="FormatDrive"/>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public Task Format(FileSystemFormat format, CancellationToken token)
         {
             return this.Format(format, null, null, token);
         }
 
         /// <inheritdoc cref="FormatDrive"/>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public Task Format(FileSystemFormat format, string? volumeLabel, IProcessLogger? logger = null, CancellationToken token = default)
         {
             return this.Format(format, volumeLabel, true, 0, null, logger, token);
         }
 
         /// <inheritdoc cref="FormatDrive"/>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public Task Format(FileSystemFormat format, string? volumeLabel = null, bool quickFormat = true, uint allocationUnitSize = 0, string? additionalArgs = null, IProcessLogger? logger = null, CancellationToken token = default)
         {
+            ThrowIfUnsupportedPlatform();
             CloseHandle(true);
             return FormatDrive(DriveLetter, format, quickFormat, volumeLabel, allocationUnitSize, additionalArgs, logger, token);
         }
@@ -280,6 +277,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// Updates the <see cref="_handle"/> field if necessary"/>
         /// </summary>
         /// <returns>the value of <see cref="_handle"/></returns>
+        [SupportedOSPlatform("windows5.1.2600")]
         private SafeHandle GetHandle(bool exclusiveMode)
         {
             if (_handle is null || _handle.IsInvalid || exclusiveMode != _isExclusiveMode)
@@ -297,7 +295,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// </summary>
         /// <param name="exclusiveMode"></param>
         /// <returns></returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public bool SetExclusiveMode(bool exclusiveMode)
         {
             ThrowIfDisposed(disposedValue);
@@ -335,7 +333,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// When false, opens the volume in shared mode, allowing other processes to access it.
         /// </param>
         /// <returns><see langword="true"/> if successful, otherwise <see langword="false"/></returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public bool Lock()
         {
             ThrowIfDisposed(disposedValue);
@@ -363,7 +361,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// Note that <see cref="Eject"/> and <see cref="Dismount"/> will automatically set this flag to false as part of those processes.
         /// </remarks>
         /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/></returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public bool PreventRemoval(bool state)
         {
             ThrowIfDisposed(disposedValue);
@@ -387,7 +385,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// This will also close and dispose of the internal handle if it was used to lock the volume.
         /// </remarks>
         /// <returns><see langword="true"/> is successful, otherwise <see langword="false"/></returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public bool Unlock()
         {
             ThrowIfDisposed(disposedValue);
@@ -408,7 +406,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// <returns>
         /// Returns <see langword="true"/> if the drive can be ejected, otherwise returns <see langword="false"/>
         /// </returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public bool IsRemovable()
         {
             if (DriveInfo.DriveType != DriveType.Removable) return false;
@@ -448,5 +446,3 @@ namespace RFBCodeWorks.DriveUtilities
 
     }
 }
-#pragma warning restore CA1416 // available on non-windows platforms
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

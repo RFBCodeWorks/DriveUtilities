@@ -7,8 +7,6 @@
  * - Utilizes CSWin32 for Source Code generation of Windows APIs
  */
 
-#define SAFE_EJECT
-
 //#define CSWIN32_0_3_238
 //#define CSWIN32_0_3_236
 #define CSWIN32_0_3_235
@@ -23,8 +21,7 @@ using Windows.Win32.Storage.FileSystem;
 using Windows.Win32.System.Ioctl;
 using Marshal = System.Runtime.InteropServices.Marshal;
 
-#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
-#pragma warning disable CA1416 // available on non-windows platforms
+//#pragma warning disable CA1416 // available on non-windows platforms
 
 namespace RFBCodeWorks.DriveUtilities
 {
@@ -36,6 +33,8 @@ namespace RFBCodeWorks.DriveUtilities
     /// <br/> - <see href="https://www.codeproject.com/articles/How-to-Prepare-a-USB-Drive-for-Safe-Removal-2"/>
     /// <para/>Note that the 'C' drive is not considered a valid drive letter for this class.
     /// </remarks>
+
+    [SupportedOSPlatform("windows6.1")]
     public partial class UsbDrive
     {
         public static UsbDrive[] GetUsbDrives() => System.IO.DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Removable).Select(d => new UsbDrive(d)).ToArray();
@@ -53,8 +52,12 @@ namespace RFBCodeWorks.DriveUtilities
         }
 
         /// <inheritdoc cref="DismountVolume(string)"/>
-        [SupportedOSPlatform("windows")]
-        public static unsafe bool DismountVolume(char driveLetter) => DismountVolume(DriveLetterToVolumePath(driveLetter));
+        [SupportedOSPlatform("windows6.1")]
+        public static unsafe bool DismountVolume(char driveLetter)
+        {
+            ThrowIfUnsupportedPlatform();
+            return DismountVolume(DriveLetterToVolumePath(driveLetter));
+        }
 
         /// <inheritdoc cref="DismountVolume(SafeHandle)"/>
         /// <param name="volumePath">Path in the following format : "\\.\X:"</param>
@@ -130,9 +133,10 @@ namespace RFBCodeWorks.DriveUtilities
         /// </summary>
         /// <param name="rootDir">The directory root.  F:\</param>
         /// <returns>True if the drive is flagged as removable, otherwise false.</returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public static bool IsRemovableDrive(char driveLetter)
         {
+            ThrowIfUnsupportedPlatform();
             ThrowIfInvalidDriveChar(driveLetter);
             return PInvoke.GetDriveType($"{Char.ToUpperInvariant(driveLetter)}:\\") == PInvoke.DRIVE_REMOVABLE;
         }
@@ -142,16 +146,17 @@ namespace RFBCodeWorks.DriveUtilities
         /// </summary>
         /// <param name="rootDir">The directory root.  F:\</param>
         /// <returns>True if the drive is flagged as removable, otherwise false.</returns>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows5.1.2600")]
         public static bool IsRemovableDrive(string rootDir)
         {
+            ThrowIfUnsupportedPlatform();
             ThrowIfPathIsNotValid(rootDir, nameof(rootDir));
             return PInvoke.GetDriveType(rootDir) == PInvoke.DRIVE_REMOVABLE;
         }
 
         /// <param name="removableDrive">The drive to remove</param>
         /// <inheritdoc cref="Eject(char)"/>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows6.1")]
         public static bool Eject(DriveInfo removableDrive)
         {
             if (removableDrive.DriveType == DriveType.Removable)
@@ -166,7 +171,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// <br/> Only the first character is used. (Accepts "D" , "D:\", "D:\\" etc.)
         /// </param>
         /// <inheritdoc cref="Eject(char)"/>
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows6.1")]
         public static bool Eject(string driveRoot)
         {
             ThrowIfPathIsNotValid(driveRoot, nameof(driveRoot));
@@ -181,7 +186,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// <exception cref="ArgumentException">Thrown if the <paramref name="driveLetter"/> is invalid or the drive is not removable.</exception>"
         /// https://www.codeproject.com/articles/How-to-Prepare-a-USB-Drive-for-Safe-Removal
         /// https://www.codeproject.com/articles/How-to-Prepare-a-USB-Drive-for-Safe-Removal-2
-        [SupportedOSPlatform("windows")]
+        [SupportedOSPlatform("windows6.1")]
         public static unsafe bool Eject(char driveLetter)
         {
             driveLetter = Char.ToUpperInvariant(driveLetter);
@@ -189,8 +194,10 @@ namespace RFBCodeWorks.DriveUtilities
             return Eject(driveLetter, null, out _, null);
         }
 
+        [SupportedOSPlatform("windows6.1")]
         private static unsafe bool Eject(char driveLetter, SafeHandle? safeHandle, out bool wasDisposed, Action<string>? diagnostic, bool dismountedAlready = false )
         {
+            ThrowIfUnsupportedPlatform();
             ThrowIfInvalidDriveChar(driveLetter);
             driveLetter = Char.ToUpperInvariant(driveLetter);
             wasDisposed = false;
@@ -270,9 +277,9 @@ namespace RFBCodeWorks.DriveUtilities
         /// <exception cref="ArgumentException">Thrown when an invalid drive character is provided, invalid format, or invalid volume label.</exception>
         /// <exception cref="InvalidOperationException">Thrown when the process fails to format the drive.</exception>
         /// <exception cref="OperationCanceledException">Thrown when the operation is cancelled.</exception>
-        [SupportedOSPlatform("windows")]
         public static async Task FormatDrive(char driveLetter, FileSystemFormat format, bool quickFormat = true, string? volumeLabel = "", uint allocationUnitSize = 0, string? additionalArgs = "", IProcessLogger? logger = null, CancellationToken token = default)
         {
+            ThrowIfUnsupportedPlatform();
             ThrowIfInvalidDriveChar(driveLetter);
             driveLetter = Char.ToUpperInvariant(driveLetter);
 
@@ -429,6 +436,21 @@ namespace RFBCodeWorks.DriveUtilities
 #endif
             return success;
         }
+
+#if NETFRAMEWORK || WINDOWS7_0_OR_GREATER
+        private static void ThrowIfUnsupportedPlatform(){}
+#else
+#if NET6_0_OR_GREATER
+        [SupportedOSPlatformGuard("windows6.1")]
+#endif
+        private static void ThrowIfUnsupportedPlatform()
+        {
+
+            if (OperatingSystem.IsWindowsVersionAtLeast(6, 1)) return;
+            Throw();
+            static void Throw() => throw new PlatformNotSupportedException("This API is only available on windows version 6.1 and newer.");
+        }
+#endif
 
         private static void ThrowRootNotMounted(string root) => throw new DirectoryNotFoundException($"Volume {root} is not mounted.");
         private static void ThrowIfInvalidDriveChar(char driveLetter)
@@ -647,4 +669,3 @@ namespace RFBCodeWorks.DriveUtilities
     }
 }
 #pragma warning restore CA1416 // available on non-windows platforms
-#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

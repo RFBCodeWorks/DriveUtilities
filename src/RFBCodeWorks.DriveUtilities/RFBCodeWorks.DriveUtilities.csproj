@@ -3,12 +3,12 @@
     <PropertyGroup>
         <TargetFrameworks>
             net462;
-            net5.0;
-            net6.0;
-            net8.0;
+            net5.0-windows;
+            net6.0-windows;
+            net8.0-windows;
         </TargetFrameworks>
         <Platforms>x86;x64;</Platforms>
-        <Version>1.0.0.5</Version>
+        <Version>1.0.0.6</Version>
         <AssemblyName>RFBCodeWorks.DriveUtilities</AssemblyName>
         <RootNamespace>RFBCodeWorks.DriveUtilities</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -18,17 +18,30 @@
 
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
-        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <OutputPath>.\bin\$(Configuration)\$(TargetFramework)\$(Platform)\</OutputPath>
         <IntermediateOutputPath>.\obj\$(Configuration)\$(TargetFramework)\$(Platform)\</IntermediateOutputPath>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
         <!-- Nuget Packing  -->
+        <Copyright>Robert Brenckman - 2025</Copyright>
+        <PackageProjectUrl>https://github.com/RFBCodeWorks/DriveUtilities/</PackageProjectUrl>
+        <SupportedOSPlatform>Windows</SupportedOSPlatform>
         <PackageId>RFBCodeWorks.DriveUtilities</PackageId>
         <PackageReadmeFile>readme.md</PackageReadmeFile>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <IncludeBuildOutput>true</IncludeBuildOutput>
         <PackageTags>USB;Eject;USB Ejection;USB Format;</PackageTags>
         <PackageOutputPath>..\..\Packages\</PackageOutputPath>
+
+        <Description>
+            Main Class : RFBCodeWorks.DriveUtilities.UsbDrive
+            Functionality :
+            - Run a task to format the drive using format.com utility process
+            - Eject the drive
+            - Lock/Unlock the volume
+        </Description>
     </PropertyGroup>
 
     <ItemGroup>

@@ -9,6 +9,8 @@ namespace RFBCodeWorks.DriveUtilities
 {
 #if NETFRAMEWORK
 
+#pragma warning disable CS9113 // Parameter is unread.
     internal sealed class SupportedOSPlatformAttribute(string platform) : Attribute { }
+#pragma warning restore CS9113 // Parameter is unread.
 #endif
 }
