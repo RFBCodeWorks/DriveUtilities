@@ -59,14 +59,17 @@ namespace RFBCodeWorks.DriveUtilities
     /// <remarks>
     /// Create a new <see cref="ProcessProxyLogger"/>
     /// </remarks>
-    /// <param name="infoLogger">An optional delegate for logging <see cref="Diagnostics.Process.OutputDataReceived"/></param>
-    /// <param name="errorLogger">An optional delegate for logging <see cref="Diagnostics.Process.ErrorDataReceived"/></param>
+    /// <param name="infoLogger">An optional delegate for logging <see cref="System.Diagnostics.Process.OutputDataReceived"/></param>
+    /// <param name="errorLogger">An optional delegate for logging <see cref="System.Diagnostics.Process.ErrorDataReceived"/></param>
     public sealed class ProcessProxyLogger(Action<string>? infoLogger, Action<string>? errorLogger) : IProcessLogger
     {
         private readonly Action<string>? _infoLogger = infoLogger;
         private readonly Action<string>? _errorLogger = errorLogger;
 
+        /// <inheritdoc cref="IProcessLogger.LogInfo(string)"/>
         public void LogInfo(string message) => _infoLogger?.Invoke(message);
+
+        /// <inheritdoc cref="IProcessLogger.LogError(string)"/>
         public void LogError(string message) => _errorLogger?.Invoke(message);
     }
 

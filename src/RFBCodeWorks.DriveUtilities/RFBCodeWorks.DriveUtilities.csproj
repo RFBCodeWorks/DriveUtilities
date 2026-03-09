@@ -7,8 +7,8 @@
             net6.0-windows;
             net8.0-windows;
         </TargetFrameworks>
-        <Platforms>x86;x64</Platforms>
-        <Version>1.0.0.6</Version>
+        <Platforms>x86;x64;AnyCPU</Platforms>
+        <Version>1.0.1.4</Version>
         <AssemblyName>RFBCodeWorks.DriveUtilities</AssemblyName>
         <RootNamespace>RFBCodeWorks.DriveUtilities</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -34,7 +34,7 @@
         <IncludeBuildOutput>true</IncludeBuildOutput>
         <PackageTags>USB;Eject;USB Ejection;USB Format;</PackageTags>
         <PackageOutputPath>..\..\Packages\</PackageOutputPath>
-
+        <IncludeBuildOutput>true</IncludeBuildOutput>
         <Description>
             Main Class : RFBCodeWorks.DriveUtilities.UsbDrive
             Functionality :
@@ -44,6 +44,12 @@
         </Description>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <DefineConstants>AnyCPU;$(DefineConstants)</DefineConstants>
+        <NoWarn>PInvoke005;$(NoWarn)</NoWarn>
+    </PropertyGroup>
+    
     <ItemGroup>
         <Compile Remove="bin\**" />
         <EmbeddedResource Remove="bin\**" />
@@ -86,13 +92,15 @@
     <!-- Nuget Packing -->
     <ItemGroup>
         <Content Pack="true" Visible="true" Include="..\..\readme.md" PackagePath="\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x86\RFBCodeWorks.UsbEject.dll" PackagePath="lib\net462\x86\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x64\RFBCodeWorks.UsbEject.dll" PackagePath="lib\net462\x64\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x86\$(AssemblyName).dll" PackagePath="lib\net5.0-windows7.0\x86\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x64\$(AssemblyName).dll" PackagePath="lib\net5.0-windows7.0\x64\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x86\$(AssemblyName).dll" PackagePath="lib\net6.0-windows7.0\x86\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x64\$(AssemblyName).dll" PackagePath="lib\net6.0-windows7.0\x64\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x86\$(AssemblyName).dll" PackagePath="lib\net8.0-windows7.0\x86\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x64\$(AssemblyName).dll" PackagePath="lib\net8.0-windows7.0\x64\" />
+        <!-- x86 -->
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net462\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net5.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net6.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net8.0-windows7.0\" />
+        <!-- x64 -->
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net462\x64\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net5.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net6.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net8.0-windows7.0\" />
     </ItemGroup>
 </Project>

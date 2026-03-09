@@ -36,12 +36,12 @@ namespace RFBCodeWorks.DriveUtilities
         NTFS,
 
         /// <summary>
-        /// <see cref="https://learn.microsoft.com/en-us/windows/win32/fileio/exfat-specification"/>
+        /// <see href="https://learn.microsoft.com/en-us/windows/win32/fileio/exfat-specification"/>
         /// </summary>
         exFAT,
 
         /// <summary>
-        /// <see cref="https://learn.microsoft.com/en-us/windows-server/storage/refs/refs-overview"/>
+        /// <see href="https://learn.microsoft.com/en-us/windows-server/storage/refs/refs-overview"/>
         /// </summary>
         ReFS,
 

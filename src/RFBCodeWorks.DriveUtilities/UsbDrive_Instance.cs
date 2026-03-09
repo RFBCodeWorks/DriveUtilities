@@ -8,6 +8,7 @@
 
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Security;
 using System.Text.RegularExpressions;
 using Windows.Win32;
 
@@ -20,6 +21,12 @@ namespace RFBCodeWorks.DriveUtilities
     /// </summary>
     public partial class UsbDrive : IDisposable
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsbDrive"/> class for the specified drive.
+        /// </summary>
+        /// <param name="driveInfo">The <see cref="DriveInfo"/> object representing the USB drive to associate with this instance. Must not be
+        /// <see langword="null"/> and must reference a valid drive letter.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="driveInfo"/> is <see langword="null"/>.</exception>
         public UsbDrive(DriveInfo driveInfo)
         {
             DriveInfo = driveInfo ?? throw new ArgumentNullException(nameof(driveInfo));
@@ -27,6 +34,14 @@ namespace RFBCodeWorks.DriveUtilities
             ThrowIfInvalidDriveChar(driveInfo.Name[0]); // validates drive letter
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsbDrive"/> class for the specified drive letter.
+        /// </summary>
+        /// <remarks>The constructor creates a <see cref="UsbDrive"/> instance associated with the
+        /// specified drive letter. The drive letter is normalized to uppercase. Ensure that the drive exists and is
+        /// accessible before instantiating this class.</remarks>
+        /// <param name="driveLetter">The drive letter representing the USB drive to access. Must be an uppercase or lowercase English letter
+        /// corresponding to a valid drive.</param>
         public UsbDrive(char driveLetter)
         {
             ThrowIfInvalidDriveChar(driveLetter);
@@ -34,6 +49,15 @@ namespace RFBCodeWorks.DriveUtilities
             Root = DriveInfo.Name;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsbDrive"/> class for the specified drive root path.
+        /// </summary>
+        /// <remarks>The constructor validates that the provided path represents a valid drive root. If
+        /// the path is not in the correct format, an exception is thrown.</remarks>
+        /// <param name="path">The file system path used to identify the USB drive. Must contain a valid drive root in the format
+        /// <c>X:\</c>.</param>
+        /// <exception cref="ArgumentException">Thrown if <paramref name="path"/> is null, empty, does not contain a valid root, or is not in the format
+        /// <c>X:\</c>.</exception>
         public UsbDrive(string path)
         {
             if (string.IsNullOrWhiteSpace(path))
@@ -104,7 +128,7 @@ namespace RFBCodeWorks.DriveUtilities
         public bool IsMounted => _isMounted ??= Directory.Exists(Root);
         
         /// <summary>
-        /// Value is set depending on the usage of <see cref="Lock(bool)"/> and <see cref="Unlock"/>
+        /// Value is set depending on the usage of <see cref="Lock"/> and <see cref="Unlock"/>
         /// </summary>
         public bool IsExclusiveMode => _isExclusiveMode;
 
@@ -169,7 +193,7 @@ namespace RFBCodeWorks.DriveUtilities
 
         /// <summary>
         /// Attempt to lock then dismount the volume.
-        /// Note that this will not power off the device - use <see cref="Eject"/> for that.
+        /// Note that this will not power off the device - use <see cref="Eject()"/> for that.
         /// </summary>
         /// <remarks>
         /// If successful, closes the underlying handle.
@@ -269,6 +293,7 @@ namespace RFBCodeWorks.DriveUtilities
         public Task Format(FileSystemFormat format, string? volumeLabel = null, bool quickFormat = true, uint allocationUnitSize = 0, string? additionalArgs = null, IProcessLogger? logger = null, CancellationToken token = default)
         {
             ThrowIfUnsupportedPlatform();
+            ThrowIfDisposed(disposedValue);
             CloseHandle(true);
             return FormatDrive(DriveLetter, format, quickFormat, volumeLabel, allocationUnitSize, additionalArgs, logger, token);
         }
@@ -293,7 +318,10 @@ namespace RFBCodeWorks.DriveUtilities
         /// <summary>
         /// Sets the internal handle to exclusive or shared mode.
         /// </summary>
-        /// <param name="exclusiveMode"></param>
+        /// <param name="exclusiveMode">
+        /// When true, opens the volume in exclusive mode, preventing other processes from accessing it.
+        /// When false, opens the volume in shared mode, allowing other processes to access it.
+        /// </param>
         /// <returns></returns>
         [SupportedOSPlatform("windows5.1.2600")]
         public bool SetExclusiveMode(bool exclusiveMode)
@@ -328,10 +356,9 @@ namespace RFBCodeWorks.DriveUtilities
         /// <summary>
         /// Attempts to lock the volume.
         /// </summary>
-        /// <param name="exclusiveMode">
-        /// When true, opens the volume in exclusive mode, preventing other processes from accessing it.
-        /// When false, opens the volume in shared mode, allowing other processes to access it.
-        /// </param>
+        /// <remarks>
+        /// Note that locking the drive by definition makes it exclusive, and attempts from Windows Explorer or other program to access the drive are likely to fail while locked.
+        /// </remarks>
         /// <returns><see langword="true"/> if successful, otherwise <see langword="false"/></returns>
         [SupportedOSPlatform("windows5.1.2600")]
         public bool Lock()
@@ -355,10 +382,10 @@ namespace RFBCodeWorks.DriveUtilities
         /// <summary>
         /// Sets the 'Removal Prevention' flag true or false.
         /// <br/>If the drive was not locked prior to calling this method, the flag will be set in non-exclusive mode.
-        /// <br/>If exclusive mode is required, call <see cref="Lock(bool)"/> first.
+        /// <br/>If exclusive mode is required, call <see cref="Lock"/> first.
         /// </summary>
         /// <remarks>
-        /// Note that <see cref="Eject"/> and <see cref="Dismount"/> will automatically set this flag to false as part of those processes.
+        /// Note that <see cref="Eject()"/> and <see cref="Dismount"/> will automatically set this flag to false as part of those processes.
         /// </remarks>
         /// <returns><see langword="true"/> if the operation was successful, otherwise <see langword="false"/></returns>
         [SupportedOSPlatform("windows5.1.2600")]
@@ -437,12 +464,14 @@ namespace RFBCodeWorks.DriveUtilities
             GC.SuppressFinalize(this);
         }
 
-        //// Leave at bottom of file to indicate in solution explorer that methods below this are static
-        //~UsbDrive()
-        //{
-        //    Dispose(false);
-        //}
-
+        /// <summary>
+        /// <inheritdoc cref="Dispose()"/>
+        /// </summary>
+        [SecuritySafeCritical]
+        ~UsbDrive()
+        {
+            Dispose(disposing: false);
+        }
 
     }
 }

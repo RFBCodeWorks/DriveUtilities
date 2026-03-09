@@ -44,6 +44,13 @@ namespace RFBCodeWorks.DriveUtilities.WPF
         [RelayCommand]
         public void RefreshDrives()
         {
+            if (Drives is not null)
+            {
+                foreach (IDisposable d in Drives)
+                {
+                    d.Dispose();
+                }
+            }
             Drives = UsbDriveViewModel.GetUsbDriveViewModels();
             SelectedDrive = Drives.FirstOrDefault();
             OnPropertyChanged(nameof(SelectedDrive));
@@ -55,11 +62,14 @@ namespace RFBCodeWorks.DriveUtilities.WPF
             if (newValue is not null) newValue.Ejected += OnEjected;
         }
 
-        private void OnEjected(object sender, EventArgs e) => RefreshDrives();
+        private void OnEjected(object sender, EventArgs e)
+        {
+            //RefreshDrives();
+        }
 
 
         [RelayCommand(CanExecute =nameof(CanOpenWindowsExplorer))]
         private void OpenWindowsExplorer() => Process.Start(new ProcessStartInfo() { FileName = SelectedDrive!.UsbDrive.Root });
-        private bool CanOpenWindowsExplorer() => SelectedDrive != null;
+        private bool CanOpenWindowsExplorer() => SelectedDrive != null && SelectedDrive.UsbDrive.IsMounted;
     }
 }

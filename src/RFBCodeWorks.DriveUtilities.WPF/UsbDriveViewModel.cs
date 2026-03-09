@@ -10,7 +10,10 @@ namespace RFBCodeWorks.DriveUtilities
     /// <summary>
     /// A viewmodel wrapper for <see cref="UsbDrive"/>
     /// </summary>
-    public partial class UsbDriveViewModel(UsbDrive value) : INotifyPropertyChanged
+    /// <remarks>
+    /// Ensure that dispose is called to unlock the drive prior to losing the reference to the object.
+    /// </remarks>
+    public partial class UsbDriveViewModel(UsbDrive value) : INotifyPropertyChanged, IDisposable
     {
         public static UsbDriveViewModel[] GetUsbDriveViewModels() => System.IO.DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Removable).Select(d => new UsbDriveViewModel(new UsbDrive(d))).ToArray();
 
@@ -20,7 +23,7 @@ namespace RFBCodeWorks.DriveUtilities
 
         private ProcessLogger? _diagnostics;
         private ProcessLogger? _pLogger;
-        
+
         public event PropertyChangedEventHandler? PropertyChanged;
         public event EventHandler? Ejected;
         public event EventHandler? Dismounted;
@@ -74,9 +77,9 @@ namespace RFBCodeWorks.DriveUtilities
         private bool CanUnlock() => UsbDrive.IsMounted && UsbDrive.IsLocked;
 
         [RelayCommand(CanExecute = nameof(IsMounted))] private void ToggleExclusiveMode() { UsbDrive.SetExclusiveMode(!UsbDrive.IsExclusiveMode); Notify(); }
-        
 
-        private void PLogger_InfoReceived(object? sender, ProcessDataReceivedEventArgs e)=> PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FormatLog)));
+
+        private void PLogger_InfoReceived(object? sender, ProcessDataReceivedEventArgs e) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(FormatLog)));
 
         public void Notify()
         {
@@ -89,12 +92,12 @@ namespace RFBCodeWorks.DriveUtilities
             this.UnlockCommand?.NotifyCanExecuteChanged();
         }
 
-        [RelayCommand(CanExecute =nameof(CanEject))]
+        [RelayCommand(CanExecute = nameof(CanEject))]
         public void Eject()
         {
             if (UsbDrive.Dismount())
                 Dismounted?.Invoke(this, EventArgs.Empty);
-            
+
             if (UsbDrive.Eject())
                 Ejected?.Invoke(this, EventArgs.Empty);
 
@@ -102,13 +105,23 @@ namespace RFBCodeWorks.DriveUtilities
         }
         private bool CanEject() => UsbDrive.IsDriveLetterValid(UsbDrive.DriveLetter);
 
-        [RelayCommand(CanExecute =nameof(IsMounted))]
+        [RelayCommand(CanExecute = nameof(IsMounted))]
         public void Dismount()
         {
             if (UsbDrive.Dismount())
                 Dismounted?.Invoke(this, EventArgs.Empty);
 
             Notify();
+        }
+
+        public void Dispose()
+        {
+            ((IDisposable)UsbDrive).Dispose();
+        }
+
+        ~UsbDriveViewModel()
+        {
+            Dispose();
         }
     }
 }

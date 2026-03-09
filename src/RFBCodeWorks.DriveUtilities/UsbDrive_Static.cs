@@ -37,7 +37,12 @@ namespace RFBCodeWorks.DriveUtilities
     [SupportedOSPlatform("windows6.1")]
     public partial class UsbDrive
     {
-        public static UsbDrive[] GetUsbDrives() => System.IO.DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Removable).Select(d => new UsbDrive(d)).ToArray();
+        /// <summary>
+        /// Gets all removable drives as <see cref="UsbDrive"/> objects
+        /// </summary>
+        /// <returns></returns>
+        public static UsbDrive[] GetUsbDrives() => [.. System.IO.DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.Removable).Select(d => new UsbDrive(d))];
+
 
         /// <summary>
         /// Method to normalize DeviceIoControl calls without input or output buffers
@@ -59,7 +64,7 @@ namespace RFBCodeWorks.DriveUtilities
             return DismountVolume(DriveLetterToVolumePath(driveLetter));
         }
 
-        /// <inheritdoc cref="DismountVolume(SafeHandle)"/>
+        /// <inheritdoc cref="DismountVolume(SafeHandle, bool)"/>
         /// <param name="volumePath">Path in the following format : "\\.\X:"</param>
         private static unsafe bool DismountVolume(string volumePath)
         {
@@ -85,6 +90,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// <br/>  - Unlocks the volume <see langword="FSCTL_UNLOCK_VOLUME"/>
         /// </summary>
         /// <param name="handle">The handle for the device. Handle should be in exclusive mode.</param>
+        /// <param name="unlockOnFailure"></param>
         /// <returns><see langword="true"/> if all steps complete successfully, otherwise <see langword="false"/></returns>
         private static unsafe bool DismountVolume(SafeHandle handle, bool unlockOnFailure = true)
         {
@@ -123,15 +129,26 @@ namespace RFBCodeWorks.DriveUtilities
             return $@"\\.\{Char.ToUpperInvariant(driveLetter)}:";
         }
 
+        /// <summary>
+        /// Checks if the drive letter is valid (A-Z, a-z) and not 'C' or 'c'
+        /// </summary>
+        /// <param name="driveLetter"></param>
+        /// <returns></returns>
         public static bool IsDriveLetterValid(char driveLetter)
         {
-            return (driveLetter == 'c' || driveLetter == 'C' || driveLetter >= 'A' && driveLetter <= 'Z' || driveLetter >= 'a' && driveLetter <= 'z');
+            switch(driveLetter)
+            {
+                case 'C':
+                case 'c':
+                    return false;
+            }
+            return (driveLetter >= 'A' && driveLetter <= 'Z') || (driveLetter >= 'a' && driveLetter <= 'z');
         }
 
         /// <summary>
         /// Check if a drive letter directory is located on a  removable drive.
         /// </summary>
-        /// <param name="rootDir">The directory root.  F:\</param>
+        /// <param name="driveLetter">The directory root. 'F' for drive F:\</param>
         /// <returns>True if the drive is flagged as removable, otherwise false.</returns>
         [SupportedOSPlatform("windows5.1.2600")]
         public static bool IsRemovableDrive(char driveLetter)
@@ -144,7 +161,7 @@ namespace RFBCodeWorks.DriveUtilities
         /// <summary>
         /// Check if a specified root directory is located on a  removable drive.
         /// </summary>
-        /// <param name="rootDir">The directory root.  F:\</param>
+        /// <param name="rootDir">The directory root. F:\</param>
         /// <returns>True if the drive is flagged as removable, otherwise false.</returns>
         [SupportedOSPlatform("windows5.1.2600")]
         public static bool IsRemovableDrive(string rootDir)
@@ -195,7 +212,7 @@ namespace RFBCodeWorks.DriveUtilities
         }
 
         [SupportedOSPlatform("windows6.1")]
-        private static unsafe bool Eject(char driveLetter, SafeHandle? safeHandle, out bool wasDisposed, Action<string>? diagnostic, bool dismountedAlready = false )
+        private static unsafe bool Eject(char driveLetter, SafeHandle? safeHandle, out bool wasDisposed, Action<string>? diagnostic, bool dismountedAlready = false)
         {
             ThrowIfUnsupportedPlatform();
             ThrowIfInvalidDriveChar(driveLetter);
@@ -410,10 +427,11 @@ namespace RFBCodeWorks.DriveUtilities
         /// <returns>A <see cref="SafeHandle"/></returns>
         private static Microsoft.Win32.SafeHandles.SafeFileHandle OpenVolumeHandle(string volumePath, bool exclusiveMode = true, uint dwDesiredAccess = DefaultVolumeAccess)
         {
+            ThrowIfCpuArchitectureNotSupported();
             return PInvoke.CreateFile(
                     lpFileName: volumePath,
                     dwDesiredAccess: dwDesiredAccess,
-                    dwShareMode: (exclusiveMode ? FILE_SHARE_MODE.FILE_SHARE_NONE : FILE_SHARE_MODE.FILE_SHARE_READ | FILE_SHARE_MODE.FILE_SHARE_WRITE),
+                    dwShareMode: (exclusiveMode ? FILE_SHARE_MODE.FILE_SHARE_NONE : FILE_SHARE_MODE.FILE_SHARE_READ | FILE_SHARE_MODE.FILE_SHARE_WRITE | FILE_SHARE_MODE.FILE_SHARE_DELETE),
                     lpSecurityAttributes: null,
                     dwCreationDisposition: FILE_CREATION_DISPOSITION.OPEN_EXISTING,
                     dwFlagsAndAttributes: FILE_FLAGS_AND_ATTRIBUTES.FILE_ATTRIBUTE_DEVICE,
@@ -437,15 +455,22 @@ namespace RFBCodeWorks.DriveUtilities
             return success;
         }
 
+        internal static void ThrowIfCpuArchitectureNotSupported()
+        {
+#if AnyCPU
+            throw new NotImplementedException("Not Implemented for AnyCPU");
+#endif
+        }
+
 #if NETFRAMEWORK || WINDOWS7_0_OR_GREATER
-        private static void ThrowIfUnsupportedPlatform(){}
+        private static void ThrowIfUnsupportedPlatform() => ThrowIfCpuArchitectureNotSupported();
 #else
 #if NET6_0_OR_GREATER
         [SupportedOSPlatformGuard("windows6.1")]
 #endif
         private static void ThrowIfUnsupportedPlatform()
         {
-
+            ThrowIfCpuArchitectureNotSupported();
             if (OperatingSystem.IsWindowsVersionAtLeast(6, 1)) return;
             Throw();
             static void Throw() => throw new PlatformNotSupportedException("This API is only available on windows version 6.1 and newer.");
@@ -459,7 +484,7 @@ namespace RFBCodeWorks.DriveUtilities
             {
                 Throw(driveLetter);
             }
-            static void Throw(char letter) => throw new ArgumentException($"Invalid Drive Letter - Expected A-Z. Received '{letter}'", "driveLetter");
+            static void Throw(char letter) => throw new ArgumentException($"Invalid Drive Letter - Expected A-Z (excluding the C-Drive). Received '{letter}'", "driveLetter");
         }
         private static void ThrowIfDriveIsNotRemovable(char driveLetter)
         {
@@ -467,7 +492,7 @@ namespace RFBCodeWorks.DriveUtilities
             {
                 Throw(driveLetter);
             }
-            static void Throw(char letter) =>  throw new ArgumentException($"Drive '{letter}:\\' is not a Removable Drive.", "driveLetter");
+            static void Throw(char letter) => throw new ArgumentException($"Drive '{letter}:\\' is not a Removable Drive.", "driveLetter");
         }
         private static void ThrowIfStringIsNullOrWhiteSpace(string input, string paramName)
         {
@@ -506,7 +531,7 @@ namespace RFBCodeWorks.DriveUtilities
             return success;
         }
 
-        /// <inheritdoc cref="TryGetStorageDeviceNumber(SafeHandle, out STORAGE_DEVICE_NUMBER)">
+        /// <inheritdoc cref="TryGetStorageDeviceNumber(SafeHandle, out STORAGE_DEVICE_NUMBER)" />
         private static unsafe bool TryGetStorageDeviceNumber(string volumePath, out STORAGE_DEVICE_NUMBER result)
         {
             using var handle = OpenVolumeHandle(volumePath, false, 0u);
@@ -527,6 +552,9 @@ namespace RFBCodeWorks.DriveUtilities
         /// <returns><see langword="true"/> if a matching disk device was found, otherwise false.</returns>
         private static unsafe bool TryGetDeviceInstanceID(STORAGE_DEVICE_NUMBER storageDeviceNumber, out uint deviceInstanceID)
         {
+#if AnyCPU
+            throw new NotImplementedException("Not Implemented for AnyCPU");
+#else
             deviceInstanceID = uint.MaxValue;
             Guid diskGuid = PInvoke.GUID_DEVINTERFACE_DISK; // this class only cares about disk devices
 
@@ -555,7 +583,7 @@ namespace RFBCodeWorks.DriveUtilities
                 uint sizeOf_DeviceDetails = (uint)Marshal.SizeOf<SP_DEVICE_INTERFACE_DETAIL_DATA_W>();
                 uint index = 0;
 
-                while(true)
+                while (true)
                 {
                     // Get device interface data
                     if (!PInvoke.SetupDiEnumDeviceInterfaces(hDevInfo, null, &diskGuid, index++, &devInterfaceData))
@@ -576,7 +604,7 @@ namespace RFBCodeWorks.DriveUtilities
 
                     // Call again to get the device interface details
                     SP_DEVICE_INTERFACE_DETAIL_DATA_W* detailData = (SP_DEVICE_INTERFACE_DETAIL_DATA_W*)Marshal.AllocHGlobal((int)requiredSize);
-                    detailData->cbSize =sizeOf_DeviceDetails;
+                    detailData->cbSize = sizeOf_DeviceDetails;
                     try
                     {
                         if (!PInvoke.SetupDiGetDeviceInterfaceDetail(hDevInfo, &devInterfaceData, detailData, requiredSize, &requiredSize, &devInfoData))
@@ -590,14 +618,14 @@ namespace RFBCodeWorks.DriveUtilities
 
                         // Get the device path by converting the fixed char array to string
                         string devicePath;
-                        fixed(char* p = &detailData->DevicePath.e0)
+                        fixed (char* p = &detailData->DevicePath.e0)
                             devicePath = new string(p);
-                        
-                        if (string.IsNullOrWhiteSpace(devicePath)) 
+
+                        if (string.IsNullOrWhiteSpace(devicePath))
                             continue;
 
                         // Open the physical device in non-exclusive mode
-                        using SafeHandle hDevice =  OpenVolumeHandle(devicePath, false, 0u);
+                        using SafeHandle hDevice = OpenVolumeHandle(devicePath, false, 0u);
                         if (hDevice == null || hDevice.IsInvalid)
                         {
                             hDevice?.Close();
@@ -638,6 +666,7 @@ namespace RFBCodeWorks.DriveUtilities
                 PInvoke.SetupDiDestroyDeviceInfoList(hDevInfo);
             }
             return false;
+#endif
         }
 
         /// <summary>
