@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <TargetFrameworks>
-            net462;
-            net5.0-windows;
-            net6.0-windows;
-            net8.0-windows;
-        </TargetFrameworks>
+			net462;
+			net5.0-windows;
+			net6.0-windows;
+			net8.0-windows;
+		</TargetFrameworks>
         <Platforms>x86;x64;AnyCPU</Platforms>
-        <Version>1.0.1.4</Version>
+        <Version>1.0.1.6</Version>
         <AssemblyName>RFBCodeWorks.DriveUtilities</AssemblyName>
         <RootNamespace>RFBCodeWorks.DriveUtilities</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -34,7 +34,7 @@
         <IncludeBuildOutput>true</IncludeBuildOutput>
         <PackageTags>USB;Eject;USB Ejection;USB Format;</PackageTags>
         <PackageOutputPath>..\..\Packages\</PackageOutputPath>
-        <IncludeBuildOutput>true</IncludeBuildOutput>
+        
         <Description>
             Main Class : RFBCodeWorks.DriveUtilities.UsbDrive
             Functionality :
@@ -42,19 +42,16 @@
             - Eject the drive
             - Lock/Unlock the volume
         </Description>
+	    <SkipBuildAllPlatforms>true</SkipBuildAllPlatforms>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Platform)' == 'AnyCPU'">
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<SkipBuildAllPlatforms>false</SkipBuildAllPlatforms>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
         <DefineConstants>AnyCPU;$(DefineConstants)</DefineConstants>
         <NoWarn>PInvoke005;$(NoWarn)</NoWarn>
     </PropertyGroup>
-    
-    <ItemGroup>
-        <Compile Remove="bin\**" />
-        <EmbeddedResource Remove="bin\**" />
-        <None Remove="bin\**" />
-    </ItemGroup>
 
     <ItemGroup>
         <Compile Remove="UsbDrive - Original.cs" />
@@ -89,18 +86,38 @@
         </Otherwise>
     </Choose>
 
+	<!-- Build all platforms when packing -->
+    <Target Name="BuildAllPlatforms" BeforeTargets="GenerateNuspec">
+        <ItemGroup>
+            <_PlatformsToBuild Include="AnyCPU;x86;x64" />
+        </ItemGroup>
+        <Exec Command="dotnet build -c $(Configuration) -p:Platform=AnyCPU" />
+        <Exec Command="dotnet build -c $(Configuration) -p:Platform=x86" />
+        <Exec Command="dotnet build -c $(Configuration) -p:Platform=x64" />
+    </Target>
+		
     <!-- Nuget Packing -->
     <ItemGroup>
         <Content Pack="true" Visible="true" Include="..\..\readme.md" PackagePath="\" />
-        <!-- x86 -->
+        <!-- AnyCPU -->
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\AnyCPU\$(AssemblyName).??l" PackagePath="lib\net462\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows*\AnyCPU\$(AssemblyName).??l" PackagePath="lib\net5.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows*\AnyCPU\$(AssemblyName).??l" PackagePath="lib\net6.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows*\AnyCPU\$(AssemblyName).??l" PackagePath="lib\net8.0-windows7.0\" />
+		
+		<!-- x86 -->
         <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net462\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net5.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net6.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net8.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net5.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net6.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net8.0-windows7.0\" />
+		
         <!-- x64 -->
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net462\x64\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net5.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net6.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net8.0-windows7.0\" />
+		<Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net462\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net5.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net6.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net8.0-windows7.0\" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="bin\" />
     </ItemGroup>
 </Project>
