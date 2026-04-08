@@ -3,12 +3,12 @@
     <PropertyGroup>
         <TargetFrameworks>
 			net462;
-			net5.0-windows;
 			net6.0-windows;
 			net8.0-windows;
+			net10.0-windows;
 		</TargetFrameworks>
         <Platforms>x86;x64;AnyCPU</Platforms>
-        <Version>1.0.1.6</Version>
+        <Version>1.0.1.7</Version>
         <AssemblyName>RFBCodeWorks.DriveUtilities</AssemblyName>
         <RootNamespace>RFBCodeWorks.DriveUtilities</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
@@ -107,15 +107,15 @@
 		
 		<!-- x86 -->
         <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net462\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net5.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net6.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net8.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net6.0-windows\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net8.0-windows\" />
+		<Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net10.0-windows*\x86\$(AssemblyName).??l" PackagePath="runtimes\win-x86\lib\net10.0-windows\" />
 		
         <!-- x64 -->
 		<Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net462\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net462\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net5.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net5.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net6.0-windows7.0\" />
-        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net8.0-windows7.0\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net6.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net6.0-windows\" />
+        <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net8.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net8.0-windows\" />
+	    <Content Pack="true" Visible="false" Include=".\bin\$(Configuration)\net10.0-windows*\x64\$(AssemblyName).??l" PackagePath="runtimes\win-x64\lib\net10.0-windows\" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="bin\" />
